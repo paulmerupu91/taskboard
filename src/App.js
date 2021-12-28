@@ -8,11 +8,14 @@ import Edit from './Components/Icons/Edit';
 import Color from './Components/Icons/Color';
 import Add from './Components/Icons/Add';
 import Done from './Components/Icons/Done';
+import Settings from './Components/Icons/Settings';
 
 import TaskItem from './Components/TaskItem';
 
 import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 import {arrayMoveImmutable} from 'array-move';
+
+import BackgroundSelection from './Components/BackgroundSelection';
 
 function App() {
 
@@ -23,6 +26,10 @@ function App() {
 
     const [taskToEdit, setTaskToEdit] = useState( null );
     const [sectionToSort, setSectionToSort] = useState( null );
+
+    const [appSettingsOpen, setAppSettingsOpen] = useState( false );
+    const [bgSrc, setBgSrc] = useState( '' );
+    const [bgColor, setBgColor] = useState( '' );
 
     // Load content from LocalStorage
     useEffect( () => {
@@ -116,7 +123,41 @@ function App() {
         
         window.addEventListener( 'click', clickedAway )
         
-    }, [taskToEdit] )   
+    }, [taskToEdit] )
+    
+    useEffect( () => {
+        const elBody = document.querySelector( 'body' );
+        const elHtml = document.querySelector( 'html' );
+        if( bgSrc ){
+
+
+            elBody.style.background = `url(${bgSrc})`;
+
+            elBody.style.height = `100%`;
+            elHtml.style.height = `100%`;
+
+            elBody.style.backgroundSize = 'cover';
+            elBody.style.backgroundRepeat = 'none';
+
+        } else {
+            elBody.style.background = 'none';
+        }
+
+    }, [bgSrc] )
+    useEffect( () => {
+        if( bgColor ){
+
+            const elBody = document.querySelector( 'body' );
+            const elHtml = document.querySelector( 'html' );
+
+            elBody.style.background = `${bgColor}`;
+
+            elBody.style.height = `100%`;
+            elHtml.style.height = `100%`;
+
+        }
+
+    }, [bgColor] )
 
     const sectionClass = `col-12 col-sm-6 col-md-4 col-lg-3 col-xxl-3 my-3`;
 
@@ -131,11 +172,32 @@ function App() {
 
             handleMoveToSection,
             updateSortingSection,
-            onSortEnd
+            onSortEnd,
+
+            bgSrc,
+            setBgSrc,
+
+            bgColor,
+            setBgColor,
+
+            appSettingsOpen,
+            setAppSettingsOpen
         }}>
-            <div className="App container-fluid px-4 my-4">
-                <h1>TaskBoard</h1>
+            <div className="App container-fluid px-4 py-4"
+                // style={{background: `url(${bgSrc})`}}
+            >
+                <div className="d-flex align-items-center justify-content-between">
+                    <h1 className={`${bgSrc && `text-white`}`}>TaskBoard</h1>
+                    <div className="text-dark d-flex align-items-center justify-content-center bg-light rounded-pill p-2"
+                        onClick={ () => setAppSettingsOpen(!appSettingsOpen) }
+                    >
+                        <Settings />
+                    </div>
+                </div>
+
+                <BackgroundSelection />
                 
+                { !appSettingsOpen &&
                 <div className="row d-flex" >
                     { sections.map( section =>
                         <div className={sectionClass} key={section?.id} data-section-id={section?.id}>
@@ -154,6 +216,7 @@ function App() {
                     </div>
                     </div>
                 </div>
+                }
 
             </div>
         </AppContext.Provider>

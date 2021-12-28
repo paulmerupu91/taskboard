@@ -1,5 +1,15 @@
 // Override default variables before the import
 $body-bg: rgb(227, 232, 235);
+$enable-negative-margins: 'true';
 
 // Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
+
+body, html{
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.App, #root{
+    min-height: 100%;
+}
