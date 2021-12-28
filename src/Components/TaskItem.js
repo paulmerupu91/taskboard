@@ -4,29 +4,30 @@ import Drag from './Icons/Drag';
 import AppContext from '../Context/AppContext';
 import { sortableHandle } from 'react-sortable-hoc';
 
-const DragHandle = sortableHandle( () => <span style={{cursor: 'grab'}}><Drag /></span> );
+const DragHandle = sortableHandle( () => <span className="p-2 " style={{cursor: 'grab'}}><Drag /></span> );
 
 function TaskItem( {task, parentId} ) {
 
     const {
-        taskToEdit,
-        setTaskToEdit,
+        taskToMoveSection,
+        setTaskToMoveSection,
         sections,
-        handleMoveToSection
+        handleMoveToSection,
+        updateTask
     } = useContext( AppContext );
 
     const elTaskRef = useRef( null );
 
-    const handleTaskToEdit = (e) => {
+    const handleTaskToMove = (e) => {
 
         e?.stopPropagation?.();
-        setTaskToEdit( {
+        setTaskToMoveSection( {
             task, 
             parentId
         } )
     }
 
-    const thisIsTaskToEdit = taskToEdit?.task === task;
+    const thisIsTaskToEdit = taskToMoveSection?.task === task;
 
     return (
         <>
@@ -42,17 +43,16 @@ function TaskItem( {task, parentId} ) {
                 //     transform: `translateY(${taskElHeight}px)`
                 // }}
                 
-                onBlur={() => setTaskToEdit(null)}
             >
-                <div className={`d-flex justify-content-between p-2 bg-light ${thisIsTaskToEdit && 'border border-bottom border-top-0 border-start-0 border-end-0'}`}>
-                    <span>
+                <div className={`d-flex justify-content-between bg-light ${thisIsTaskToEdit && 'border border-bottom border-top-0 border-start-0 border-end-0'}`}>
+                    <span style={{flexBasis: '100%'}} className="p-2">
                         { task }
                     </span>
 
                     <div className="d-flex align-items-center text-secondary">
                         <div
-                            onClick={ (e) => handleTaskToEdit(e) }
-                            className="me-2 d-inline-flex align-items-center"
+                            onClick={ (e) => handleTaskToMove(e) }
+                            className="me-2 d-inline-flex align-items-center p-2 "
                             role="button"
                         >
                             <MoveToSection />
@@ -70,7 +70,7 @@ function TaskItem( {task, parentId} ) {
                                 <span
                                     class="btn  rounded-pill btn-secondary mx-2 my-2"
                                     role="button"
-                                    onClick={ () => handleMoveToSection( {task: taskToEdit.task, parentId: section.id } ) }
+                                    onClick={ () => handleMoveToSection( {task: taskToMoveSection.task, parentId: section.id } ) }
                                 >
                                     {section.title}
                                 </span>

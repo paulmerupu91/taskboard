@@ -11,8 +11,8 @@ function BackgroundSelection() {
             attribution: 'Photo by Kasuma from Pexels'
         },
         {
-            src: '/pexels-paul-ijsendoorn-33041.jpg',
-            attribution: 'Photo by Paul IJsendoorn from Pexels'
+            src: '/pexels-jess-loiterton-4319752.jpg',
+            attribution: 'Photo by Jess Loiterton from Pexels'
         },
         {
             src: '/pexels-aron-visuals-1643113.jpg',
@@ -57,7 +57,7 @@ function BackgroundSelection() {
     }
 
     return (
-        appSettingsOpen && <div className="mx-n3 rounded-3 bg-light shadow-lg p-3 py-4 mt-3 mb-4">
+        appSettingsOpen && <div className="rounded-3 bg-light shadow-lg p-3 py-4 mt-3 mb-4">
 
             <div className="row ">
                 <div className="col-12">
@@ -66,7 +66,7 @@ function BackgroundSelection() {
                 {
                     
                 bgImgList?.map?.( img =>
-                    <div className="col-xxl-2 col-6 mb-3">
+                    <div className="col-xl-3 col-md-4 col-6 mb-3">
                         <div
                             className="d-flex flex-column bg-white p-2 rounded-3 shadow position-relative" role='button'
                             onClick={ () => handleImgSrcChange(img?.src) }
@@ -94,7 +94,7 @@ function BackgroundSelection() {
                 {
                     
                 bgColorList?.map?.( color =>
-                    <div className="col-xxl-2 col-6 mb-3">
+                    <div className="col-xl-3 col-md-4 col-6 mb-3">
                         <div
                             className="d-flex flex-column bg-white p-2 rounded-3 shadow position-relative" role='button'
                             onClick={ () => handleColorChange(color.color) }

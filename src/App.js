@@ -24,12 +24,12 @@ function App() {
 
     console.log( 'tasks', tasks );
 
-    const [taskToEdit, setTaskToEdit] = useState( null );
+    const [taskToMoveSection, setTaskToMoveSection] = useState( null );
     const [sectionToSort, setSectionToSort] = useState( null );
 
     const [appSettingsOpen, setAppSettingsOpen] = useState( false );
-    const [bgSrc, setBgSrc] = useState( '' );
-    const [bgColor, setBgColor] = useState( '' );
+    const [bgSrc, setBgSrc] = useState( JSON.parse( localStorage.getItem('taskboard-app-bg-img') ) || '' );
+    const [bgColor, setBgColor] = useState( JSON.parse( localStorage.getItem('taskboard-app-bg-color') ) || '' );
 
     // Load content from LocalStorage
     useEffect( () => {
@@ -37,11 +37,13 @@ function App() {
         const updateLocalStorageData = () => {
             localStorage.setItem('taskboard-app-tasks', JSON.stringify( tasks ) );
             localStorage.setItem('taskboard-app-sections', JSON.stringify( sections ) );
+            localStorage.setItem('taskboard-app-bg-color', JSON.stringify( bgColor ) );
+            localStorage.setItem('taskboard-app-bg-img', JSON.stringify( bgSrc ) );
         }
 
         updateLocalStorageData();
         
-    }, [tasks, sections] )
+    }, [tasks, sections, bgSrc, bgColor] )
 
     const handleSectionName = ( {id, val} ) => {
         const sectionsCopy = [...sections.map( sec => {
@@ -111,11 +113,23 @@ function App() {
         setSectionToSort( null );
     };
 
+    const updateTask = ({oldtask, newTask}) => {
+        if( oldtask && newTask ){
+            let updatedTasks = [...tasks]?.map?.( (t, i)=>{
+                if( oldtask === t.task ){
+                    t.task = oldtask;
+                }
+                return t;
+            } );
+            setTasks( updatedTasks );
+        }
+    }
+
     useEffect( () => {
 
         const clickedAway = () => {
             console.log( 'clickedAway', 'clickedAway' );
-            setTaskToEdit(null);
+            setTaskToMoveSection(null);
             window.removeEventListener( 'click', clickedAway );
         };
 
@@ -123,7 +137,7 @@ function App() {
         
         window.addEventListener( 'click', clickedAway )
         
-    }, [taskToEdit] )
+    }, [taskToMoveSection] )
     
     useEffect( () => {
         const elBody = document.querySelector( 'body' );
@@ -138,6 +152,7 @@ function App() {
 
             elBody.style.backgroundSize = 'cover';
             elBody.style.backgroundRepeat = 'none';
+            elBody.style.backgroundPosition = 'center';
 
         } else {
             elBody.style.background = 'none';
@@ -159,7 +174,7 @@ function App() {
 
     }, [bgColor] )
 
-    const sectionClass = `col-12 col-sm-6 col-md-4 col-lg-3 col-xxl-3 my-3`;
+    const sectionClass = `col-12 col-sm-12 col-md-6 col-lg-4 col-xxl-3 my-3`;
 
     return (
         <AppContext.Provider value={{
@@ -167,8 +182,8 @@ function App() {
             sections,
             handleNewTask,
 
-            taskToEdit,
-            setTaskToEdit,
+            taskToMoveSection,
+            setTaskToMoveSection,
 
             handleMoveToSection,
             updateSortingSection,
@@ -181,7 +196,9 @@ function App() {
             setBgColor,
 
             appSettingsOpen,
-            setAppSettingsOpen
+            setAppSettingsOpen,
+            
+            updateTask
         }}>
             <div className="App container-fluid px-4 py-4"
                 // style={{background: `url(${bgSrc})`}}
@@ -233,7 +250,7 @@ function Section( { section, handleSectionName } ){
     const {
         handleNewTask,
         tasks,
-        taskToEdit,
+        taskToMoveSection,
         handleMoveToSection,
         updateSortingSection,
         onSortEnd,
@@ -312,7 +329,7 @@ function Section( { section, handleSectionName } ){
 
             <div className="position-relative ">
                 {/* { 
-                    taskToEdit?.task && taskToEdit?.parentId !== section.id &&
+                    taskToMoveSection?.task && taskToMoveSection?.parentId !== section.id &&
                     <div
                         className="mt-4 py-5 top-0 w-100 h-100 border bg-light border-warning rounded-3 overflow-hidden d-flex align-items-center justify-content-center"
                     >
@@ -320,7 +337,7 @@ function Section( { section, handleSectionName } ){
                         <div className='d-flex flex-column'>
                             <span className='d-inline-flex mb-3'>Move here?</span>
                             <button className="btn btn-outline-secondary"
-                                onClick={ () => handleMoveToSection( {task: taskToEdit.task, parentId: section.id } ) }
+                                onClick={ () => handleMoveToSection( {task: taskToMoveSection.task, parentId: section.id } ) }
                             >
                                 Move
                             </button>
