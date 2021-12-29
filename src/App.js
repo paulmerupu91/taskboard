@@ -1,13 +1,10 @@
-import logo from './logo.svg';
 import './App.css';
 import './custom.scss';
 import { useState, useContext, useRef, useEffect } from 'react';
 import AppContext from './Context/AppContext';
 
 import Edit from './Components/Icons/Edit';
-import Color from './Components/Icons/Color';
 import Add from './Components/Icons/Add';
-import Done from './Components/Icons/Done';
 import Settings from './Components/Icons/Settings';
 
 import TaskItem from './Components/TaskItem';
@@ -113,16 +110,21 @@ function App() {
         setSectionToSort( null );
     };
 
-    const updateTask = ({oldtask, newTask}) => {
-        if( oldtask && newTask ){
+    const updateTask = ({oldTask, newTask}) => {
+        console.log( 'updateTask', {oldTask, newTask} );
+        if( oldTask && newTask && oldTask.trim?.().length && newTask.trim?.().length ){
             let updatedTasks = [...tasks]?.map?.( (t, i)=>{
-                if( oldtask === t.task ){
-                    t.task = oldtask;
+                if( oldTask === t.task ){
+                    t.task = newTask;
                 }
                 return t;
             } );
             setTasks( updatedTasks );
         }
+    }
+
+    const deleteTask = ( {task} ) => {
+        setTasks( [...tasks].filter( t => t.task !== task ) );
     }
 
     useEffect( () => {
@@ -197,8 +199,9 @@ function App() {
 
             appSettingsOpen,
             setAppSettingsOpen,
-            
-            updateTask
+
+            updateTask,
+            deleteTask
         }}>
             <div className="App container-fluid px-4 py-4"
                 // style={{background: `url(${bgSrc})`}}
@@ -375,7 +378,7 @@ function Section( { section, handleSectionName } ){
                         New Task
                     </h5>
                     <input
-                        // onBlur={( () => setNewTaskMode( false ) )}
+                        onBlur={( () => taskContent?.trim?.().length === 0 && setNewTaskMode( false ) )}
                         className="h5 pb-2 mb-0 px-3 py-2 w-100"
                         ref={inputNewTaskRef} type="text" value={taskContent}
                         onChange={ (e) => setTaskContent(e.target.value) }
