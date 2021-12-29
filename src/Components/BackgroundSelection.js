@@ -7,19 +7,19 @@ function BackgroundSelection() {
     const bgImgList = [
         
         {
-            src: '/pexels-kasuma-1785493.jpg',
+            src: 'pexels-kasuma-1785493.jpg',
             attribution: 'Photo by Kasuma from Pexels'
         },
         {
-            src: '/pexels-jess-loiterton-4319752.jpg',
+            src: 'pexels-jess-loiterton-4319752.jpg',
             attribution: 'Photo by Jess Loiterton from Pexels'
         },
         {
-            src: '/pexels-aron-visuals-1643113.jpg',
+            src: 'pexels-aron-visuals-1643113.jpg',
             attribution: 'Photo by Aron Visuals from Pexels'
         },
         {
-            src: '/pexels-trace-hudson-2770933.jpg',
+            src: 'pexels-trace-hudson-2770933.jpg',
             attribution: 'Photo by Trace Hudson from Pexels'
         },
         
