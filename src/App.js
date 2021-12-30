@@ -73,10 +73,6 @@ function App() {
 
     const handleMoveToSection = ( {parentId, task} ) => {
 
-        console.log( 'handleMoveToSection' );
-        console.log( 'parentId', parentId );
-        console.log( 'task', task );
-
         if( parentId && task ){
             const updatedTasks = [...tasks].map( taskItem => {
                 console.log( 'taskItem', taskItem );
@@ -124,7 +120,27 @@ function App() {
     }
 
     const deleteTask = ( {task} ) => {
-        setTasks( [...tasks].filter( t => t.task !== task ) );
+        console.log( 'deleting task', task );
+        setTasks( () => [...tasks].filter( t => t.task !== task ) );
+    }
+
+    const deleteSection = ( {sectionId} ) => {
+        if( sectionId ){
+            if( tasks?.length ){
+                const tasksToKeep = [...tasks]?.filter( t => t.parentId !== sectionId );
+                if( tasksToKeep?.length > 0 ){
+                    console.log( 'tasksToKeep', tasksToKeep );
+                    setTasks( () => tasksToKeep );
+                }
+            }
+
+            if( sections?.length ){
+                console.log( 'sections', sections );
+                const updatedSectionList = [...sections].filter( section => section.id !== sectionId );
+                console.log( 'updatedSectionList', updatedSectionList );
+                setSections( updatedSectionList );
+            }
+        }
     }
 
     useEffect( () => {
@@ -201,7 +217,8 @@ function App() {
             setAppSettingsOpen,
 
             updateTask,
-            deleteTask
+            deleteTask,
+            deleteSection
         }}>
             <div className="App container-fluid px-4 py-4"
                 // style={{background: `url(${bgSrc})`}}
@@ -249,6 +266,7 @@ function Section( { section, handleSectionName } ){
 
     const [editMode, setEditMode] = useState( false );
     const [newTaskMode, setNewTaskMode] = useState( false );
+    const [sectionSettingsOpen, setSectionSettingsOpen] = useState( false );
     const [taskContent, setTaskContent] = useState( '' );
     const {
         handleNewTask,
@@ -257,6 +275,7 @@ function Section( { section, handleSectionName } ){
         handleMoveToSection,
         updateSortingSection,
         onSortEnd,
+        deleteSection
     } = useContext( AppContext );
 
     const sectionTitleInputRef = useRef( null );
@@ -289,108 +308,141 @@ function Section( { section, handleSectionName } ){
     
 
     return(
-        <div className="position-relative" style={{minHeight: '180px'}}>
+        <div className="position-relative d-flex flex-column justify-content-between" style={{minHeight: '180px'}}>
 
-            { !editMode &&
-                <>
-                <div className="border-0 border-bottom ">
-                    <h4 onClick={ () => setEditMode( true ) }
-                        className='mb-2 mb-0 p-0 text-primary'
-                    >
-                        { section?.title }
+            <div className="main">
+                { !editMode &&
+                    <>
+                    <div className="border-0 border-bottom ">
+                        <h4 onClick={ () => setEditMode( true ) }
+                            className='mb-2 mb-0 p-0 text-primary me-4'
+                        >
+                            { section?.title }
 
-                        { section?.title?.length === 0 && <span className="text-secondary">Add a title</span> }
-                    </h4>
-                    <button className={`position-absolute top-0 btn p-0 text-secondary`} style={{right: 0}} onClick={ () => setEditMode( true ) }><Edit /></button>
-                </div>
-                </>
-            }
-            { editMode &&
-                <>
-                <div className="border-0 border-bottom ">
-                    <input className="h4 mb-2 mb-0 p-0 px-2 w-100"
-                        ref={sectionTitleInputRef}
-                        value={ section?.title }
-                        onBlur={ e => setEditMode( false ) }
-                        onChange={ e => handleSectionNameChange(e) }
-                        onKeyPress={ e => e?.key === 'Enter' && setEditMode( false ) }
-                    >
-                    </input>
-                    {/* <button
-                        style={{right: 0}}
-                        className={`position-absolute top-0 btn p-0 text-secondary`}
-                        onClick={ () => setEditMode( false ) }
-                    >
-                        <Done />
-                    </button> */}
-                </div>
-                    {/* <div className="my-2">
-                        <h5>Label Color <Color /></h5>
-                    </div> */}
-                </>
-            }
+                            { section?.title?.length === 0 && <span className="text-secondary">Add a title</span> }
+                        </h4>
+                        <button className={`position-absolute top-0 btn p-0 text-secondary`} style={{right: 0}} onClick={ () => setEditMode( true ) }><Edit /></button>
+                    </div>
+                    </>
+                }
+                { editMode &&
+                    <>
+                    <div className="border-0 border-bottom ">
+                        <input className="h4 mb-2 mb-0 p-0 px-2 w-100"
+                            ref={sectionTitleInputRef}
+                            value={ section?.title }
+                            onBlur={ e => setEditMode( false ) }
+                            onChange={ e => handleSectionNameChange(e) }
+                            onKeyPress={ e => e?.key === 'Enter' && setEditMode( false ) }
+                        >
+                        </input>
+                        {/* <button
+                            style={{right: 0}}
+                            className={`position-absolute top-0 btn p-0 text-secondary`}
+                            onClick={ () => setEditMode( false ) }
+                        >
+                            <Done />
+                        </button> */}
+                    </div>
+                        {/* <div className="my-2">
+                            <h5>Label Color <Color /></h5>
+                        </div> */}
+                    </>
+                }
 
-            <div className="position-relative ">
-                {/* { 
-                    taskToMoveSection?.task && taskToMoveSection?.parentId !== section.id &&
-                    <div
-                        className="mt-4 py-5 top-0 w-100 h-100 border bg-light border-warning rounded-3 overflow-hidden d-flex align-items-center justify-content-center"
-                    >
-                        
-                        <div className='d-flex flex-column'>
-                            <span className='d-inline-flex mb-3'>Move here?</span>
-                            <button className="btn btn-outline-secondary"
-                                onClick={ () => handleMoveToSection( {task: taskToMoveSection.task, parentId: section.id } ) }
-                            >
-                                Move
-                            </button>
+                <div className="position-relative ">
+                    {/* { 
+                        taskToMoveSection?.task && taskToMoveSection?.parentId !== section.id &&
+                        <div
+                            className="mt-4 py-5 top-0 w-100 h-100 border bg-light border-warning rounded-3 overflow-hidden d-flex align-items-center justify-content-center"
+                        >
+                            
+                            <div className='d-flex flex-column'>
+                                <span className='d-inline-flex mb-3'>Move here?</span>
+                                <button className="btn btn-outline-secondary"
+                                    onClick={ () => handleMoveToSection( {task: taskToMoveSection.task, parentId: section.id } ) }
+                                >
+                                    Move
+                                </button>
+                            </div>
+                            
                         </div>
-                        
-                    </div>
-                } */}
+                    } */}
 
-                {/* { tasks?.map?.( (task, index) => task?.parentId === section?.id &&
-                    <TaskItem task={task?.task} key={`${task.parentId}-${task.task}`}
-                        parentId={task.parentId} /> )
-                } */}
-                
-                <SortableList 
-                    updateBeforeSortStart={()=>updateSortingSection( section?.id )}
-                    items={tasksInSection} onSortEnd={onSortEnd}
-                    pressDelay={100}
-                    useDragHandle
-                />
-                
-                { !newTaskMode &&
-                    <div
-                        role="button"
-                        className="border p-2 mt-4 d-flex justify-content-center"
-                        onClick={() => setNewTaskMode( true )}>
-                        <Add />
-                    </div>
-                }
-
-                { newTaskMode &&
-                <>
-
-                    {/* { taskContent && <div className="p-2 bg-light my-3 shadow-sm">{taskContent}</div> } */}
-                    <h5 className="mt-5">
-                        New Task
-                    </h5>
-                    <input
-                        onBlur={( () => taskContent?.trim?.().length === 0 && setNewTaskMode( false ) )}
-                        className="h5 pb-2 mb-0 px-3 py-2 w-100"
-                        ref={inputNewTaskRef} type="text" value={taskContent}
-                        onChange={ (e) => setTaskContent(e.target.value) }
-                        onKeyPress={ e => e?.key === 'Enter' && taskContent && handleTask() }
+                    {/* { tasks?.map?.( (task, index) => task?.parentId === section?.id &&
+                        <TaskItem task={task?.task} key={`${task.parentId}-${task.task}`}
+                            parentId={task.parentId} /> )
+                    } */}
+                    
+                    <SortableList 
+                        updateBeforeSortStart={()=>updateSortingSection( section?.id )}
+                        items={tasksInSection} onSortEnd={onSortEnd}
+                        pressDelay={100}
+                        useDragHandle
                     />
+                    
+                    { !newTaskMode &&
+                        <div
+                            role="button"
+                            className="border p-2 mt-4 d-flex justify-content-center"
+                            onClick={() => setNewTaskMode( true )}>
+                            <Add />
+                        </div>
+                    }
 
-                    <div>
-                        <button className={`btn btn-outline-secondary mt-4 d-inline-flex align-items-center me-2`} onClick={() => setNewTaskMode( false )}><span className="">Cancel</span></button>
-                        <button className={`btn btn-primary mt-4 d-inline-flex align-items-center me-2`} onClick={() => taskContent && handleTask()}><span className="me-2">Add</span> <Add /></button>
+                    { newTaskMode &&
+                    <>
+
+                        {/* { taskContent && <div className="p-2 bg-light my-3 shadow-sm">{taskContent}</div> } */}
+                        <h5 className="mt-5">
+                            New Task
+                        </h5>
+                        <input
+                            onBlur={( () => taskContent?.trim?.().length === 0 && setNewTaskMode( false ) )}
+                            className="h5 pb-2 mb-0 px-3 py-2 w-100"
+                            ref={inputNewTaskRef} type="text" value={taskContent}
+                            onChange={ (e) => setTaskContent(e.target.value) }
+                            onKeyPress={ e => e?.key === 'Enter' && taskContent && handleTask() }
+                        />
+
+                        <div>
+                            <button className={`btn btn-outline-secondary mt-4 d-inline-flex align-items-center me-2`} onClick={() => setNewTaskMode( false )}><span className="">Cancel</span></button>
+                            <button className={`btn btn-primary mt-4 d-inline-flex align-items-center me-2`} onClick={() => taskContent && handleTask()}><span className="me-2">Add</span> <Add /></button>
+                        </div>
+                    </>
+                    }
+
+                </div>
+            </div>
+
+            
+            <div className="footer">
+                <div className="section-settings-button text-dark mt-3 d-flex justify-content-end "
+                    onClick={ () => setSectionSettingsOpen( !sectionSettingsOpen ) }
+                >
+                
+                    <Settings />
+                </div>
+
+                { sectionSettingsOpen &&
+                <div className="section-settings-panel border rounded-3 mt-2 overflow-hidden">
+                    <div className="bg-light p-3">    
+                        <div className="mb-2">
+
+                            Delete section and tasks?
+                        </div>
+                        <button className="btn btn-outline-danger " onClick={ () => deleteSection( {sectionId: section?.id} )}>
+                            Delete
+                        </button>
                     </div>
-                </>
+                    <button className="btn-white shadow-lg btn w-100 rounded-0 border-top "
+                        onClick={ () => setSectionSettingsOpen( !sectionSettingsOpen ) }
+                    >
+                        Close
+                    </button>
+                </div>
                 }
+
             </div>
 
             
